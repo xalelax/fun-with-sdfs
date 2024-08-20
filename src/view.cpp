@@ -71,7 +71,7 @@ int main() {
   glLinkProgram(shaderProgram);
 
   // Set up Mesh
-  Mesh icosphere = createIcosphere(3);
+  Mesh icosphere = createIcosphere(3).scale(2.);
   std::cout << icosphere.vertices.size() << " vertices" << std::endl;
 
   unsigned int VBO, VAO, EBO;

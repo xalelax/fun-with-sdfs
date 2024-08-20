@@ -24,6 +24,12 @@ public:
     triangles.push_back(triangle);
   }
 
+  Mesh scale(float scale) {
+    for (auto &vertex : vertices)
+      vertex *= scale;
+    return *this;
+  }
+
   void clear() {
     vertices.clear();
     triangles.clear();
