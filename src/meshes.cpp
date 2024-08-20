@@ -52,6 +52,7 @@ Mesh createIcosahedron() {
   return Mesh(vertices, triangles);
 }
 
+// Subdivides each triangle in a mesh into four triangles
 Mesh subdivideTriangles(const Mesh &mesh) {
   std::vector<Vertex> newVertices;
   std::vector<Triangle> newTriangles;
