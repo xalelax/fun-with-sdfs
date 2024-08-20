@@ -72,7 +72,6 @@ int main() {
 
   // Set up Mesh
   Mesh icosphere = createIcosphere(3).scale(2.);
-  std::cout << icosphere.vertices.size() << " vertices" << std::endl;
 
   unsigned int VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
