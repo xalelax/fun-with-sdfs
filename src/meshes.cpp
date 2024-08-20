@@ -80,7 +80,7 @@ Mesh subdivideTriangles(const Mesh &mesh) {
     newVertices.push_back(c); // 5 + offset
 
     // replace the old triangle with 4 new triangles; notice: clockwise order
-    newTriangles.push_back(Triangle{offset, 3 + offset, 5 + offset});
+    newTriangles.push_back(Triangle{0 + offset, 3 + offset, 5 + offset});
     newTriangles.push_back(Triangle{3 + offset, 4 + offset, 5 + offset});
     newTriangles.push_back(Triangle{3 + offset, 1 + offset, 4 + offset});
     newTriangles.push_back(Triangle{5 + offset, 4 + offset, 2 + offset});
