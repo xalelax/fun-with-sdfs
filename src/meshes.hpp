@@ -31,5 +31,9 @@ public:
 };
 
 Mesh createIcosahedron();
+Mesh createIcosphere(unsigned int n);
+Mesh subdivideTriangles(const Mesh &mesh);
+Mesh projectToUnitSphere(const Mesh &mesh);
+std::vector<Vertex> projectToUnitSphere(const std::vector<Vertex> vertices);
 
 #endif // MESHES_HPP
