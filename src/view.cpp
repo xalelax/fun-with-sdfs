@@ -71,21 +71,30 @@ int main() {
   glLinkProgram(shaderProgram);
 
   // Set up Mesh
-  float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+  Mesh icosphere = createIcosphere(3);
+  std::cout << icosphere.vertices.size() << " vertices" << std::endl;
 
-  unsigned int VBO, VAO;
+  unsigned int VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
 
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, icosphere.vertices.size() * sizeof(glm::vec3),
+               icosphere.vertices.data(), GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               icosphere.triangles.size() * 3 * sizeof(unsigned int),
+               icosphere.triangles.data(), GL_STATIC_DRAW);
 
   // Position attribute
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-  // Render loop
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
   while (!glfwWindowShouldClose(window)) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
@@ -93,13 +102,13 @@ int main() {
     // Calculate model matrix with rotation around Z-axis
     float rotationAngle = (float)glfwGetTime();
     glm::mat4 model = glm::rotate(glm::mat4(1.0f), rotationAngle,
-                                  glm::vec3(0.0f, 1.0f, 0.0f));
+                                  glm::vec3(1.0f, 1.0f, 0.0f));
     unsigned int modelLocation = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &model[0][0]);
 
     // Calculate view and projection matrices
     glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
+                                 glm::vec3(0.0f, 1.0f, 1.0f));
     unsigned int viewLocation = glGetUniformLocation(shaderProgram, "view");
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
@@ -111,14 +120,15 @@ int main() {
 
     // Render
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Use the shader program
     glUseProgram(shaderProgram);
 
     // Draw triangle
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, icosphere.triangles.size() * 3,
+                   GL_UNSIGNED_INT, 0);
 
     // Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     glfwSwapBuffers(window);
