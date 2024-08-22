@@ -1,4 +1,5 @@
 #include "meshes.hpp"
+#include "sdf.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -71,7 +72,7 @@ int main() {
   glLinkProgram(shaderProgram);
 
   // Set up Mesh
-  Mesh icosphere = createIcosphere(3).scale(2.);
+  Mesh icosphere = createIcosphere(4).scale(3.);
 
   unsigned int VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
@@ -99,15 +100,21 @@ int main() {
       glfwSetWindowShouldClose(window, true);
 
     // Calculate model matrix with rotation around Z-axis
-    float rotationAngle = (float)glfwGetTime();
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), rotationAngle,
-                                  glm::vec3(1.0f, 1.0f, 0.0f));
+    glm::mat4 model = glm::mat4(1.0f);
     unsigned int modelLocation = glGetUniformLocation(shaderProgram, "model");
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &model[0][0]);
 
     // Calculate view and projection matrices
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f),
-                                 glm::vec3(0.0f, 1.0f, 1.0f));
+    float rotationAngle = 0.7 * glfwGetTime();
+    float radius = 8.0f;
+    glm::vec3 initialEye(0.0f, 2.0f, -radius);
+    glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), rotationAngle, up);
+    glm::vec3 eye = glm::vec3(rotation * glm::vec4(initialEye, 1.0f));
+
+    // Point the camera is looking at (origin)
+    glm::mat4 view = glm::lookAt(eye, glm::vec3(0.0f, 0.0f, 0.0f), up);
     unsigned int viewLocation = glGetUniformLocation(shaderProgram, "view");
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
@@ -117,6 +124,12 @@ int main() {
         glGetUniformLocation(shaderProgram, "projection");
     glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
 
+    // Morph
+    icosphere = morphTowardsBox(icosphere);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0,
+                    icosphere.vertices.size() * sizeof(glm::vec3),
+                    icosphere.vertices.data());
     // Render
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
